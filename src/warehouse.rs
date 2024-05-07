@@ -4,8 +4,8 @@ use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 
-use crate::crypt::Crypt;
-use crate::input::print_input;
+use crate::crypt::{crypt, decrypt};
+use crate::input::input_with_prompt;
 
 pub struct Warehouse {}
 
@@ -36,14 +36,14 @@ impl Warehouse {
             .open(path)
             .unwrap();
 
-        let c_service = Crypt::crypt(service.trim(), key.trim());
-        let c_password = Crypt::crypt(password.trim(), key.trim());
+        let c_service = crypt(service.trim(), key.trim());
+        let c_password = crypt(password.trim(), key.trim());
         let map = Warehouse::readmap(path);
 
         if map.contains_key(&c_service) {
+            let mut choice = String::new();
             loop {
-                let mut choice = String::new();
-                print_input(&mut choice, "Service already written, rewrite? [Y/N]: ");
+                input_with_prompt(&mut choice, "Service already written, rewrite? [Y/N]: ");
                 match choice.to_uppercase().trim() {
                     "Y" => break,
                     "N" => return,
@@ -53,5 +53,17 @@ impl Warehouse {
         }
         writeln!(&mut file, "{}:{}", c_service, c_password).unwrap();
         println!("Successfully added service!")
+    }
+
+    pub fn get_service(path: &str, service: &str, key: &str) {
+        let c_service = crypt(service.trim(), key.trim());
+        let map = Warehouse::readmap(path);
+
+        if map.contains_key(&c_service) {
+            let password = decrypt(&map[&c_service], key.trim());
+            println!("Password for {}: {}", service.trim(), password);
+        } else {
+            println!("Service not found");
+        }
     }
 }
