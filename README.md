@@ -10,4 +10,4 @@ Secure Rust password storage with string-key encryption
 
 ## Credits
 App by [dnllbz](https://github.com/dnllbz) \
-License can found in [LICENSE](LICENSE) file
+License can be found in [LICENSE](LICENSE) file
